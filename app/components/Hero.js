@@ -27,7 +27,7 @@ export default function Hero() {
 
             {/* Description */}
             <p className="mx-auto lg:mx-0 max-w-lg text-lg leading-relaxed text-secondary-metal mb-10">
-              เติมพลังชีวิตในคาเฟ่ปูนเปลือยดิบเท่ ลิ้มลองกาแฟเบลนด์พิเศษ ชาออร์แกนิก และเบเกอรี่อบใหม่ร้อน ๆ จากเตาทุกวันในบรรยากาศเป็นกันเอง
+              เติมพลังชีวิตในคาเฟ่ ลิ้มลองกาแฟเบลนด์พิเศษ ชาออร์แกนิก และเบเกอรี่อบใหม่ร้อน ๆ จากเตาทุกวันในบรรยากาศเป็นกันเอง
             </p>
 
             {/* CTAs */}
@@ -74,7 +74,7 @@ export default function Hero() {
                 className="rounded-2xl object-cover shadow-2xl transition-transform duration-700 group-hover:scale-105"
                 priority
               />
-              
+
               {/* Floating Overlay Badge */}
               <div className="absolute -bottom-6 -left-6 hidden sm:flex items-center gap-3 rounded-lg border border-primary-gray/60 bg-primary-dark/95 p-4 shadow-xl backdrop-blur-md">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-orange/10 text-accent-orange">
