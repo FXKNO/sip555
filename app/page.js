@@ -1,65 +1,122 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect } from "react";
+import { supabase } from "./lib/supabase";
+import Navbar from "./components/Navbar";
+import Hero from "./components/Hero";
+import Features from "./components/Features";
+import Menu from "./components/Menu";
+import Footer from "./components/Footer";
+
+const FALLBACK_MENU = [
+  {
+    id: 1,
+    name: "Espresso",
+    price: 55,
+    tag: "Hot",
+    desc: "เข้มข้น กลิ่นหอม",
+    image: "/coffee_hero.png",
+  },
+  {
+    id: 2,
+    name: "Latte",
+    price: 65,
+    tag: "Hot",
+    desc: "นุ่มละมุน นมสด",
+    image: "/cappuccino.png",
+  },
+  {
+    id: 3,
+    name: "Cappuccino",
+    price: 65,
+    tag: "Hot",
+    desc: "ฟองนมหนานุ่ม",
+    image: "/cappuccino.png",
+  },
+  {
+    id: 4,
+    name: "Iced Americano",
+    price: 60,
+    tag: "Cold",
+    desc: "สดชื่น ไม่ใส่นม",
+    image: "/coffee_hero.png",
+  },
+  {
+    id: 5,
+    name: "Matcha Latte",
+    price: 75,
+    tag: "Cold",
+    desc: "ชาเขียวญี่ปุ่นแท้",
+    image: "/matcha.png",
+  },
+  {
+    id: 6,
+    name: "Cocoa",
+    price: 60,
+    tag: "Cold",
+    desc: "หวานมัน เด็กชอบ",
+    image: "/cappuccino.png",
+  },
+];
 
 export default function Home() {
+  const [user, setUser] = useState(null);
+  const [menuItems, setMenuItems] = useState(FALLBACK_MENU);
+  const [loading, setLoading] = useState(true);
+
+  // 1. Manage Supabase Auth Session
+  useEffect(() => {
+    // Check initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    // Listen to changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // 2. Fetch Menu Items from Supabase
+  useEffect(() => {
+    async function fetchMenu() {
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from("menu")
+          .select("*")
+          .order("id", { ascending: true });
+
+        if (error) {
+          console.warn("Supabase fetch failed, using fallback data. Error:", error.message);
+          setMenuItems(FALLBACK_MENU);
+        } else if (data && data.length > 0) {
+          setMenuItems(data);
+        } else {
+          setMenuItems(FALLBACK_MENU);
+        }
+      } catch (err) {
+        console.error("Fetch error:", err);
+        setMenuItems(FALLBACK_MENU);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchMenu();
+  }, []);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+    <div className="min-h-screen bg-stone-950 font-sans text-stone-100 selection:bg-accent-orange selection:text-stone-950 antialiased">
+      <Navbar user={user} />
+      <main>
+        <Hero />
+        <Features />
+        <Menu user={user} menuItems={menuItems} setMenuItems={setMenuItems} loading={loading} />
       </main>
+      <Footer />
     </div>
   );
 }
